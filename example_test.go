@@ -18,7 +18,6 @@ func Example() {
 		panic(err)
 	}
 	defer func() {
-		println("are we canceled")
 		ctx, cancelFunc := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancelFunc()
 		if err := shutdown(ctx); err != nil {

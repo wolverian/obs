@@ -6,14 +6,20 @@ import (
 	"log/slog"
 	"time"
 
+	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/sdk/resource"
 
 	"github.com/wolverian/obs"
 )
 
 func Example() {
-	shutdown, err := obs.Start(context.Background(), "test-app")
+	shutdown, err := obs.Start(context.Background(),
+		"test-app",
+		// Customise your resource by e.g. using detectors for your platform
+		resource.WithDetectors(ecs.NewResourceDetector()),
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -38,5 +44,5 @@ func Run(ctx context.Context) {
 
 	span.SetAttributes(attribute.String("example", "attribute"))
 
-	// do much work here
+	// Do much work here
 }

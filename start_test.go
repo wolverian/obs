@@ -17,14 +17,14 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	// Set the environment to local so Start configures OpenTelemetry to export to the console.
+	// Set the environment to "none" so Start configures OpenTelemetry to export to the console.
 	// We would otherwise get an exporter error from shutdown if there is no collector listening on localhost.
 	t.Setenv("OTEL_RESOURCE_ATTRIBUTES", "deployment.environment.name=local")
 	t.Setenv("OTEL_TRACES_EXPORTER", "none")
 	t.Setenv("OTEL_METRICS_EXPORTER", "none")
 	t.Setenv("OTEL_LOGS_EXPORTER", "none")
 
-	// Test basic initialization
+	// Test basic initialisation
 	ctx := context.Background()
 	shutdown, err := obs.Start(ctx, "test-app", resource.WithAttributes(attribute.String("testkey", "foobar123")))
 
@@ -70,7 +70,7 @@ func TestStart(t *testing.T) {
 }
 
 func TestStartWithCanceledContext(t *testing.T) {
-	// Test with canceled context
+	// Test with cancelled context
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Cancel the context immediately
 

@@ -6,7 +6,6 @@ import (
 	"log/slog"
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/contrib/detectors/aws/ecs"
 	"go.opentelemetry.io/contrib/exporters/autoexport"
 	"go.opentelemetry.io/contrib/propagators/autoprop"
 	"go.opentelemetry.io/otel"
@@ -17,14 +16,14 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
-// Start sets up observability features such as tracing, metrics, and logging for the application.
+// Start sets up OpenTelemetry tracing, metrics, and logging.
 //
-// It initializes the OpenTelemetry SDK and configures different exporters and resource detectors.
-// In addition to setting up the OpenTelemetry logging SDK, it bridges [log] and [slog] to [go.opentelemetry.io/otel/log] as well.
+// After calling Start, you can use the OpenTelemetry API and instrument your code.
+// The standard library [log] and [slog] packages are configured to send logs to OpenTelemetry.
+// You can customize the exporters using environment variables as specified in [autoexport].
+//
 // Returns a shutdown function to close exporters and free resources, and an error if setup fails.
-//
-// Customize the exporters as specified in [autoexport].
-func Start(ctx context.Context, name string) (func(context.Context) error, error) {
+func Start(ctx context.Context, name string, opts ...resource.Option) (func(context.Context) error, error) {
 	otel.SetTextMapPropagator(autoprop.NewTextMapPropagator())
 
 	var shutdownFuncs []func(context.Context) error
@@ -37,16 +36,16 @@ func Start(ctx context.Context, name string) (func(context.Context) error, error
 		return err
 	}
 
-	r, err := resource.New(ctx,
+	ropts := []resource.Option{
 		resource.WithContainer(),
 		resource.WithProcess(),
 		resource.WithFromEnv(),
 		resource.WithHost(),
 		resource.WithTelemetrySDK(),
-		resource.WithDetectors(
-			ecs.NewResourceDetector(),
-		),
-	)
+	}
+	ropts = append(ropts, opts...)
+
+	r, err := resource.New(ctx, ropts...)
 
 	spanExporter, err := autoexport.NewSpanExporter(ctx)
 	if err != nil {

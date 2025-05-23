@@ -24,21 +24,6 @@ import (
 // Returns a shutdown function to close exporters and free resources, and an error if setup fails.
 //
 // Customize the exporters as specified in [autoexport].
-//
-// Example:
-//
-//	shutdown, err := observability.Start(ctx, "myapp")
-//	if err != nil {
-//		log.Fatal(fmt.Errorf("could not set up observability: %w", err))
-//	}
-//	defer func() {
-//		ctx, cancelFunc := context.WithTimeout(context.Background(), 10*time.Second)
-//		defer cancelFunc()
-//		err := shutdown(ctx)
-//		if err := shutdown(ctx); err != nil {
-//			log.Print(fmt.Errorf("error shutting down observability: %w", err))
-//		}
-//	}()
 func Start(ctx context.Context, name string) (func(context.Context) error, error) {
 	otel.SetTextMapPropagator(autoprop.NewTextMapPropagator())
 

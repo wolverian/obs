@@ -7,6 +7,7 @@ import (
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/contrib/exporters/autoexport"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/contrib/propagators/autoprop"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/log/global"
@@ -52,6 +53,10 @@ func Start(ctx context.Context, name string, opts ...resource.Option) (func(cont
 		return shutdown, err
 	}
 	shutdownFuncs = append(shutdownFuncs, spanExporter.Shutdown)
+
+	autoexport.RegisterMetricProducer("runtime", func(ctx context.Context) (metric.Producer, error) {
+		return runtime.NewProducer(), nil
+	})
 
 	metricReader, err := autoexport.NewMetricReader(ctx)
 	if err != nil {

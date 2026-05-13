@@ -83,10 +83,10 @@ func Start(ctx context.Context, name string, opts ...resource.Option) (func(cont
 
 	if env == "local" {
 		spanProcessor = trace.WithSyncer
-		logProcessor = func(exporter log.Exporter) log.Processor { return log.NewSimpleProcessor(logExporter) }
+		logProcessor = func(exporter log.Exporter) log.Processor { return log.NewSimpleProcessor(exporter) }
 	} else {
 		spanProcessor = func(exporter trace.SpanExporter) trace.TracerProviderOption { return trace.WithBatcher(exporter) }
-		logProcessor = func(exporter log.Exporter) log.Processor { return log.NewBatchProcessor(logExporter) }
+		logProcessor = func(exporter log.Exporter) log.Processor { return log.NewBatchProcessor(exporter) }
 	}
 
 	tracerProvider = trace.NewTracerProvider(spanProcessor(spanExporter), trace.WithResource(r))
